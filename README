@@ -1,0 +1,55 @@
+I create the image in an updated CentOS 7 Hyper-V VM
+Assumptions:
+•	RHEL 7, CentOS 7 or OL7, updated
+•	Docker installed, configured to start and running
+•	A normal user called student
+•	Golang is installed
+•	wget is installed
+
+Build process
+1)	Login as student user:
+$ cd Documents or create the file: $ mkdir Documents;cd Documents
+$ mkdir prog_exercise
+$ cd prog_exercise
+
+2)	Download the files from github.com place:
+$ wget https://raw.githubusercontent.com/cegamboav/golang_programming_exercise/main/Dockerfile
+$ wget https://raw.githubusercontent.com/cegamboav/golang_programming_exercise/main/main.go
+$ wget https://raw.githubusercontent.com/cegamboav/golang_programming_exercise/main/file.json
+
+3)	Create the go.mod and go.sum files:
+$ go mod init main.go
+$ go mod tidy
+
+4)	Open the 8081 port into the firewalld:
+$ sudo firewall-cmd --zone=public --add-port=8081/tcp --permanent
+$ sudo firewall-cmd --list-all
+
+5)	Create the docker image:
+$ sudo docker build -t prog_exercise .
+$ sudo docker run -p 8081:8081 prog_exercise
+
+6)	At this moment you should be able to see a message like this:
+2022/02/09 21:01:03 Listening and Serve...
+
+7)	The server is up and running, ready to start the operations.
+
+How to run the operations:
+I create three APIs:
+•	/api/encrypt
+•	/api/decrypt
+•	/api/show_jsonfile
+
+The first one /api/encrypt is going to take the value in the json file and is going to encrypt that data.
+The second one is going to do the inverse function.
+And the last one can be user to display the information in the json file at any time.
+
+How to use the apis:
+Open a web browser and insert the following instructions:
+http:// localhost:8081/api/encrypt
+http:// localhost:8081/api/decrypt
+http://localhost:8081/api/show_jsonfile
+Note: Change the localhost to your own ip address, if you are not running the web browser in the local place.
+
+Always you can use the “Postman” chrome application to do the test, all the calls are configured in the GET method.
+
