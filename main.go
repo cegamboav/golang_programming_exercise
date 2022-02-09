@@ -271,6 +271,92 @@ func HandleGetMethod_decrypt(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func HandleGetMethod_show_jsonfile(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintln(w, "Printing JSON File content")
+        fmt.Fprintln(w, "----------------------------------------")
+
+        //Open our jsonfile
+        jsonFile, err := os.Open("file.json")
+
+        //if we os.Open returns an error then handle it
+        if err != nil {
+                //print the error collected in both sides and stop the execution of the function
+                fmt.Fprintln(w, err.Error())
+                log.Fatal(err.Error())
+        } else {
+                //We set the variable contnue_var to true
+                continue_var = true
+        }
+
+        //defer the closing of our jsonFile so that we can parse it later on
+        defer jsonFile.Close()
+
+        //If the variable is true, means can continue
+        if continue_var == true {
+                //Initialize the data array
+                var data []Value
+
+                //Variable to load the content of the file
+                content, erro := ioutil.ReadFile("file.json")
+
+                //If reading the file it encount any error
+                if erro != nil {
+                        //Display the error
+                        fmt.Fprintln(w, "Error: "+erro.Error())
+                        log.Fatal(erro.Error())
+                }
+
+                //Now load the content of content into the data structure
+                err2 := json.Unmarshal(content, &data)
+                //If found any error
+                if err2 != nil {
+                        //It going to show error message
+                        fmt.Fprintln(w, "Error: "+err2.Error())
+                        log.Fatal(err2.Error())
+                }
+
+                //Set the json_num with the amount of objects in the file
+                json_num := len(data)
+
+                //If the file does not contains data
+                if json_num == 0 {
+                        //Shows Error message
+                        fmt.Fprintln(w, "File is empty, please insert a data value in the file        [Error]")
+                } else {
+                        //If the json file contains a single value
+                        if json_num == 1 {
+
+                                // we navegate through the array to collect the data and encrypt it
+                                for _, x := range data {
+
+                                        //Obtain the information to know if the string has been aready encrypted
+                                        is_already_Encrypted := bool(x.Is_Encrypted)
+
+                                        //Check if the file is already encrypted
+                                        if is_already_Encrypted == false {
+                                                //Print a confirmation message to let know the file is not encrypted
+                                                fmt.Fprintln(w, "File is not encrypted.")
+
+                                                //If not, proceed with the encription of the data
+                                                fmt.Fprintln(w, "Current Value: ", x.Valor)
+                                        } else {
+                                                //Print a confirmation message to let know the file is not encrypted
+                                                fmt.Fprintln(w, "File is encrypted.")
+
+                                                //If not, proceed with the encription of the data
+                                                fmt.Fprintln(w, "Current Value: ", x.Valor)
+                                        }
+                                }
+                        } else {
+                                //If there is more than 1 value, we show error messaga and do not continue
+                                fmt.Fprintln(w, "The file contains more than a single value        [Error]")
+                        }
+
+                }
+
+        }
+}
+
 func main() {
         //First we create the variable r as NewRoute
         r := mux.NewRouter()
@@ -278,6 +364,9 @@ func main() {
         //The we create the routes for our APIs
         r.HandleFunc("/api/encrypt", HandleGetMethod_encrypt).Methods(http.MethodGet)
         r.HandleFunc("/api/decrypt", HandleGetMethod_decrypt).Methods(http.MethodGet)
+
+        //I create a get method to show the information in the file:
+        r.HandleFunc("/api/show_jsonfile", HandleGetMethod_show_jsonfile).Methods(http.MethodGet)
 
         //The we set the values for our server
         srv := http.Server{
