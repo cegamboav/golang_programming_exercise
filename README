@@ -5,6 +5,7 @@ Assumptions:
 •	A normal user called student
 •	Golang is installed
 •	wget is installed
+•	gcc is installed
 
 Build process
 1)	Login as student user:
